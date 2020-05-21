@@ -19,6 +19,7 @@ package reactor.netty.http.client;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.channels.ClosedChannelException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -648,6 +649,14 @@ class HttpClientOperations extends HttpOperations<NettyInbound, NettyOutbound>
 		request.headers()
 		       .set(requestHeaders);
 		return request;
+	}
+
+	@Override
+	protected Throwable wrapInboundError(Throwable err) {
+		if (err instanceof ClosedChannelException) {
+			return new PrematureCloseException(err);
+		}
+		return super.wrapInboundError(err);
 	}
 
 	final HttpRequest getNettyRequest() {

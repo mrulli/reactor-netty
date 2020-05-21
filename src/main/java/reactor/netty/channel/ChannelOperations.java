@@ -16,6 +16,7 @@
 
 package reactor.netty.channel;
 
+import java.nio.channels.ClosedChannelException;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
@@ -465,6 +466,23 @@ public class ChannelOperations<INBOUND extends NettyInbound, OUTBOUND extends Ne
 	protected final String formatName() {
 		return getClass().getSimpleName()
 		                 .replace("Operations", "");
+	}
+
+	/**
+	 * Wrap an inbound error
+	 *
+	 * @param err the {@link Throwable} cause
+	 */
+	protected Throwable wrapInboundError(Throwable err) {
+		if (err instanceof ClosedChannelException) {
+			return new AbortedException(err);
+		}
+		else if (err instanceof OutOfMemoryError) {
+			return ReactorNetty.wrapException(err);
+		}
+		else {
+			return err;
+		}
 	}
 
 	@Override

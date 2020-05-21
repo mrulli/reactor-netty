@@ -31,6 +31,10 @@ public class AbortedException extends RuntimeException {
 		super(message);
 	}
 
+	public AbortedException(Throwable throwable) {
+		super(throwable);
+	}
+
 	/**
 	 * Return true if connection has been simply aborted on a tcp level by verifying if
 	 * the given inbound error.
